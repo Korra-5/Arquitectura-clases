@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
+using Microsoft.VisualBasic;
 
 namespace Proyecto1;
 //Clase Characer
@@ -29,6 +30,13 @@ public class Character
    
     public int Attack()
     {
+        Random random = new Random();
+        int critical = random.Next(0, 30);
+
+        if (critical == 1)
+        {
+            return BaseDamage*2;
+        }
         return BaseDamage; 
     }
 
@@ -50,26 +58,40 @@ return HitPoints;
 
     public int ReceiveDamage(int damage)
     {
-        int FinalDamage =  damage - BaseArmor;
-        if (FinalDamage < 0)
+        Random random = new Random();
+        int avoidHit = random.Next(0, 30);
+        //Esta es una variable para esquivar los golpes
+        
+        if (avoidHit != 1){
+
+    int finalDamage =  damage - BaseArmor;
+        if (finalDamage < 0)
         {
             HitPoints = HitPoints - 1;
         }
-        else if (FinalDamage > 0)
+        else if (finalDamage > 0)
         {
-            HitPoints = HitPoints - FinalDamage;
+            HitPoints = HitPoints - finalDamage;
             if (HitPoints < 0)
             {
                 HitPoints = 0;
             }
         }
+        }
         return HitPoints;
+        
     }
 
     public void AddItem(Item item)
     {
         _inventory.Add(item);
         item.Apply(this);
+    }
+
+    public void RemoveItem(Item item)
+    {
+        _inventory.Remove(item);
+        item.Desapply(this);
     }
     
     public override string ToString()
@@ -94,11 +116,16 @@ public class Weapon : Item
     public int Damage;
 
     //Metodo heredado de la interfaz
-    public void Apply(Character character)
+    public virtual void Apply(Character character)
     {
         character.BaseDamage += Damage;
     }
- 
+
+    public void Desapply(Character character)
+    {
+        character.BaseDamage -= Damage;
+    }
+
 }
 
 //CLase Protection la cual hereda de la interfaz Item
@@ -112,15 +139,20 @@ public class Protection : Item
     {
         character.BaseArmor += Armor;
     }
-
+    
+    public void Desapply(Character character)
+    {
+        character.BaseArmor -= Armor;
+    }
 
 }
 
 //Clase Sword que hereda de la clase Weapon
 public class Sword : Weapon
 {
-    public string Name = "Sword";
-    public int Damage;
+    public Sword() {
+        Name = "Sword";
+    }
     
     public override string ToString()
     {
@@ -132,8 +164,10 @@ public class Sword : Weapon
 //Clase Axe que hereda de la clase Weapon
 public class Axe : Weapon
 {
-    public string Name = "Axe";
-    public int Damage;
+    public Axe()
+    {
+        Name = "Axe";
+    }
     
     public override string ToString()
     {
@@ -144,8 +178,10 @@ public class Axe : Weapon
 //Clase Helmet que hereda de la clase Protection
 public class Helmet : Protection
 {
-    public String Name = "Helmet";
-    public int Armor;
+    public Helmet()
+    {
+        Name = "Helmet";
+    }
     
     public override string ToString()
     {
@@ -157,8 +193,10 @@ public class Helmet : Protection
 //Clase Shield que hereda de la clase Protection
 public class Shield : Protection
 {
-    public String Name = "Shield";
-    public int Armor;
+    public Shield()
+    {
+        Name = "Shield";
+    }
     
     public override string ToString()
     {
@@ -210,14 +248,14 @@ public class Minion
 
     public int ReceiveDamageMinion(int damage)
     {
-        int FinalDamage =  damage - MinionArmor;
-        if (FinalDamage < 0)
+        int finalDamage =  damage - MinionArmor;
+        if (finalDamage < 0)
         {
             MinionHitPoints = MinionHitPoints - 1;
         }
-        else if (FinalDamage > 0)
+        else if (finalDamage > 0)
         {
-            MinionHitPoints = MinionHitPoints - FinalDamage;
+            MinionHitPoints = MinionHitPoints - finalDamage;
             if (MinionHitPoints < 0)
             {
                 MinionHitPoints = 0;
@@ -239,5 +277,6 @@ public class Minion
 public interface Item
 {
     public void Apply(Character character);
+    public void Desapply(Character character);
 }
 
